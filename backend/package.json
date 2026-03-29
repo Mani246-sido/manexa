@@ -1,0 +1,22 @@
+{
+  "name": "manexa",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "yup"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mani246-sido/manexa.git"
+  },
+  "keywords": [
+    "ai"
+  ],
+  "author": "backend dev-maninder",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mani246-sido/manexa/issues"
+  },
+  "homepage": "https://github.com/Mani246-sido/manexa#readme",
+  "description": ""
+}
