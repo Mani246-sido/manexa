@@ -61,3 +61,14 @@ CREATE TABLE attendance (
     status VARCHAR(10),
     FOREIGN KEY (student_id) REFERENCES students(id)
 );
+--marks
+CREATE TABLE marks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT,
+    subject_id INT,
+    marks INT,
+    grade VARCHAR(5),
+    FOREIGN KEY (student_id) REFERENCES students(id),
+    FOREIGN KEY (subject_id) REFERENCES subjects(id)
+);
+

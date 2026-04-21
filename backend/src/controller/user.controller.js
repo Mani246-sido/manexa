@@ -4,28 +4,29 @@ import ApiResponse from "../utils/ApiResponse.js"
 import { registerUser } from "../auth/auth.service"
 import bycrpt from "bcrypt"
 import { sendLoginEmail } from "../utils/emailvariable.js"
+import { pool } from "../config/mysql.js"
 
-import ApiError from "../utils/ApiError.js"
+import {ApiError} from "../utils/ApiError.js"
 
 
 export const generateAccessAndRefreshToken = async (userId) => {
   try {
-    // 🔍 Find user
+    //  Find user
     const user = await User.findById(userId);
 
     if (!user) {
       throw new ApiError(404, "User not found");
     }
 
-    // 🔐 Generate tokens
+    //  Generate tokens
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
-    // 💾 Save refresh token in DB
+    // Save refresh token in DB
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
 
-    // 📤 Return tokens
+    //  Return tokens
     return {
       accessToken,
       refreshToken
@@ -110,11 +111,48 @@ const logout = async(req,res)=>{
         res.status(500).json(new ApiResponse(500,error.message));
     }
 };
+//marking attendance function
+const markAttendance = async(req,res)=>{
+    try {
+        const {student_id} = req.body;
+
+        await pool.query(
+            "insert into attendance (student_id,date,status) values (?,curdate(),'present')",
+            [student_id]
+        );
+        res.status(200).json(new ApiResponse(200,"Attendance marked "));
+        
+    } catch (error) {
+        res.status(500).json(newApiResponse(500,error.message));
+        
+    }
+};
+//attendance mark krne ka function 
+const getattendancefun=async(req,res)=>{
+    try {
+        const studentid= req.user.ref_id;
+        const [rows]  = await pool.query(
+            "select * from attendance where student_id = ? order by date desc",
+            [studentid]
+        )
+        res.status(200).json(new ApiResponse(200,"Attendance fetched successfully",rows));
+    } catch (error) {
+        res.status(500).json(new ApiResponse(500,error.message));
+        
+    }
+};
+//putmarks
+//getmarks
+//getpercentage
+
 
 
 export default{
     register,
     login,
     getProfile,
-    logout
+    logout,
+    getattendancefun,
+    marksAttendance,
+
 }

@@ -15,11 +15,16 @@ export const  verifyToken = (req, res, next) => {
     }
 };
 
-export const rolesauthorized = (...roles)=>{
-    return (req,res,next)=>{
-        if(!roles.includes(req.user.role)){
-            return res.status(403).json({message:"Forbidden: You don't have permission to access this resource"});
-        }        next();
+export  const authorizeRoles = (...roles) => {
+    return (req, res, next) => {
+        //lets check if theres a user in req or not
+        if(!req.user || !roles.user.role){
+            return res.status(403).json({message:"Access denied,as user not found"});
 
+        }
+        if(!roles.includes(req.user.role)){
+            return res.status(403).json({message:"Access denied, insufficient permissions"});
+        }
+        next();
     }
-}
+};
