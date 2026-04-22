@@ -14,6 +14,26 @@ router.route("/login").post(login);
 //ye hoga verify 
 router.route("/profile").get(verifyToken,getProfile);
 router.route("/logout").post(verifyToken,logout);
+router.post(
+  "/marks",
+  verifyToken,
+  authorizeRoles("teacher"),
+  uploadMarks
+);
+
+router.get(
+  "/marks",
+  verifyToken,
+  authorizeRoles("student"),
+  getMarks
+);
+
+router.get(
+  "/result",
+  verifyToken,
+  authorizeRoles("student"),
+  getResult
+);
 
 
 
