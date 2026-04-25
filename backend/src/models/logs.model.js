@@ -14,5 +14,5 @@ const LogSchema = new mongoose.Schema({
         default:{}
 
     },
-},{timrstamps:true})
-export const Log = mongoose.Schema('Log',LogSchema)
+},{timestamps:true})
+export const Log = mongoose.Model('Log',LogSchema)

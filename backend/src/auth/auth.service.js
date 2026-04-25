@@ -1,9 +1,10 @@
 import bycrpt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user.model.js';
+import { pool } from '../config/mysql.js';
 
 export const registerUser = async(data)=>{
-    const {username,email,password,role,class_id,subject} = data;
+    const {username,name,email,password,role,class_id,subject} = data;
 
     const existingUser = await User.findOne({email});
     if(existingUser){
@@ -31,7 +32,7 @@ export const registerUser = async(data)=>{
 
     ref_id = result.insertId;
 }
-    const newUser= await username.create({username,email,password:hashedPassword,role,ref_id});
+    const newUser= await User.create({username,email,password:hashedPassword,role,ref_id});
     return newUser;
     
 };

@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { transporter } from "../config/mail.js";
+import { transporter } from "../config/mail.js";//ispe kaam krna h 
 
 export const sendLoginEmail = async (user, req) => {
   const filePath = path.resolve("src/templates/mailtemplate.html");

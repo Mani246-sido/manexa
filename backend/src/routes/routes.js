@@ -1,6 +1,6 @@
 import express from 'express';
 import { register , login,getProfile,logout} from '../controller/user.controller.js';
-import { verifyToken } from '../middlewares/auth.middleware.js';
+import { verifyToken,authorizeRoles } from '../middlewares/auth.middleware.js';
 
 export const router = express.Router();
 //public access wale

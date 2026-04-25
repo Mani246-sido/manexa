@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
 import { User } from "../models/user.model.js"
 import ApiResponse from "../utils/ApiResponse.js"
-import { registerUser } from "../auth/auth.service"
+import { registerUser } from "../auth/auth.service.js"
 import bcrypt from "bcrypt"
 import { sendLoginEmail } from "../utils/emailvariable.js"
 import { pool } from "../config/mysql.js"
@@ -236,7 +236,60 @@ const uploadMarks = async(req,res)=>{
     }
 };
 //getmarks
+const getMarks = async (req, res) => {
+  try {
+    const studentId = req.user.ref_id;
+    const [rows] = await pool.query(
+      `SELECT m.marks, m.grade, s.subject_name
+       FROM marks m
+       JOIN subjects s ON m.subject_id = s.id
+       WHERE m.student_id = ?`,
+      [studentId]
+    );
+    res.status(200).json(new ApiResponse(200, "Marks fetched successfully", rows));
+  } catch (error) {
+    res.status(500).json(new ApiResponse(500, error.message));
+  }
+};
+ 
 //getpercentage
+const getResult = async (req, res) => {
+  try {
+    const studentId = req.user.ref_id;
+    const [rows] = await pool.query(
+      `SELECT m.marks, m.grade, s.subject_name
+       FROM marks m
+       JOIN subjects s ON m.subject_id = s.id
+       WHERE m.student_id = ?`,
+      [studentId]
+    );
+ 
+    if (!rows.length) {
+      return res.status(404).json(new ApiResponse(404, "No result found"));
+    }
+ 
+    const totalMarks = rows.reduce((sum, r) => sum + r.marks, 0);
+    const maxMarks = rows.length * 100; 
+    const percentage = ((totalMarks / maxMarks) * 100).toFixed(2);
+ 
+    let overallGrade = "F";
+    if (percentage >= 90) overallGrade = "A+";
+    else if (percentage >= 80) overallGrade = "A";
+    else if (percentage >= 70) overallGrade = "B";
+    else if (percentage >= 60) overallGrade = "C";
+    else if (percentage >= 50) overallGrade = "D";
+ 
+    res.status(200).json(new ApiResponse(200, "Result fetched successfully", {
+      subjects: rows,
+      totalMarks,
+      maxMarks,
+      percentage: `${percentage}%`,
+      overallGrade
+    }));
+  } catch (error) {
+    res.status(500).json(new ApiResponse(500, error.message));
+  }
+};
 
 
 
@@ -248,7 +301,10 @@ export default{
     getattendancefun,
     markAttendance,
     uploadMarks,
-    markAttendanceFromAI 
+    markAttendanceFromAI,
+    getMarks,
+    getResult,
+     
 
 
 }

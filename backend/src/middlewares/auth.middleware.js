@@ -18,7 +18,7 @@ export const  verifyToken = (req, res, next) => {
 export  const authorizeRoles = (...roles) => {
     return (req, res, next) => {
         //lets check if theres a user in req or not
-        if(!req.user || !roles.user.role){
+        if(!req.user || !req.user.role){
             return res.status(403).json({message:"Access denied,as user not found"});
 
         }
