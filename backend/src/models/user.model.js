@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema({
     enum: ["admin", "teacher", "student"],
     default: "student"
   },
+  school_id: {
+    type: Number,
+    required: true
+  },
+
   ref_id: {//sql for stpring records
     type: Number,
     required: false

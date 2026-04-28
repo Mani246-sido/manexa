@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import app from './app.js';
 import connectDB from './config/mongo.js';
+import { verifyMailer } from './config/mail.js';
 
 import { connectmysql } from './config/mysql.js';
 
@@ -11,6 +12,9 @@ const servertry = async () => {
  try {
      await connectDB();
      await connectmysql();
+     await verifyMailer();
+
+     
      app.listen(PORT, () => {
        console.log(`Server running on port ${PORT}`);
        });

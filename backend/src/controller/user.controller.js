@@ -3,7 +3,7 @@ import { User } from "../models/user.model.js"
 import ApiResponse from "../utils/ApiResponse.js"
 import { registerUser } from "../auth/auth.service.js"
 import bcrypt from "bcrypt"
-import { sendLoginEmail } from "../utils/emailvariable.js"
+import { sendLoginEmail, sendPasswordChangeEmail } from "../utils/emailvariable.js"
 import { pool } from "../config/mysql.js"
 import fs from "fs"
 import axios from "axios"
@@ -49,8 +49,8 @@ export const generateAccessAndRefreshToken = async (userId) => {
 // Register a new user
 const register = async(req,res)=>{
     try {
-        const {username,email,password,role,class_id,subject} = req.body;
-        const newUser = await registerUser({username,email,password,role,class_id,subject});
+        const {username,email,password,role,class_id} = req.body;
+        const newUser = await registerUser({username,email,password,role,class_id});
         res.status(201).json(new ApiResponse(201,"User registered successfully",newUser));
 
         
@@ -81,7 +81,11 @@ const login = async (req, res) => {
     const { accessToken, refreshToken } =
       await generateAccessAndRefreshToken(user._id);
 
-    sendLoginEmail(user, req);
+    try {
+  await sendLoginEmail(user, req);
+} catch (err) {
+  console.error("Mail send failed:", err.message); // login block mat karo
+}
 
     res.status(200).json(
       new ApiResponse(200, "Login successful", {
@@ -111,6 +115,37 @@ const getProfile = async(req,res)=>{
         
     }
 };
+//changepass
+const changePassword = async(req,res)=>{
+  try {
+    const {currentPassword,newPassword} = req.body;
+    if(!currentPassword || !newPassword){
+      return res.status(400).json(new ApiResponse(400,"Current and new password are required"));
+    }
+      const user = await User.findById(req.user.id);
+      if(!user){
+        return res.status(403).json(new ApiResponse(403,"User not found"));
+      }
+      const isMatch = await bcrypt.compare(currentPassword,user.password);
+      if(!isMatch){
+        return res.status(401).json(new ApiResponse(401,"Current password is incorrect"));
+      }
+      user.password = await bcrypt.hash(newPassword,10);
+      await user.save({validateBeforeSave:false});
+      try {
+        
+        await sendPasswordChangeEmail(user, req);
+      } catch (error) {
+        console.error("Password change email failed:", error.message); // password change block mat karo
+        
+      }
+      res.status(200).json(new ApiResponse(200,"Password changed successfully"));
+  } catch (error) {
+    res.status(500).json(new ApiResponse(500,error.message));
+    
+  }
+};
+
 //logout
 const logout = async(req,res)=>{
     try {
@@ -304,6 +339,8 @@ export default{
     markAttendanceFromAI,
     getMarks,
     getResult,
+    changePassword,
+    
      
 
 

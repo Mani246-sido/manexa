@@ -17,7 +17,8 @@ CREATE TABLE users (
 -- Classes
 CREATE TABLE classes (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    class_name VARCHAR(50)
+    class_name VARCHAR(50),
+    ALTER TABLE classes ADD COLUMN school_id INT, ADD FOREIGN KEY (school_id) REFERENCES schools(id);
 );
 
 -- Students
@@ -26,7 +27,8 @@ CREATE TABLE students (
     user_id INT,
     class_id INT,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (class_id) REFERENCES classes(id)
+    FOREIGN KEY (class_id) REFERENCES classes(id),
+    ALTER TABLE students ADD COLUMN school_id INT, ADD FOREIGN KEY (school_id) REFERENCES schools(id);
 );
 
 -- Subjects
@@ -41,7 +43,8 @@ CREATE TABLE teachers (
     user_id INT,
     subject_id INT,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (subject_id) REFERENCES subjects(id)
+    FOREIGN KEY (subject_id) REFERENCES subjects(id),
+    ALTER TABLE teachers ADD COLUMN school_id INT, ADD FOREIGN KEY (school_id) REFERENCES schools(id);
 );
 
 -- Enrollments
@@ -59,7 +62,8 @@ CREATE TABLE attendance (
     student_id INT,
     date DATE,
     status VARCHAR(10),
-    FOREIGN KEY (student_id) REFERENCES students(id)
+    FOREIGN KEY (student_id) REFERENCES students(id),
+    ALTER TABLE attendance ADD COLUMN school_id INT, ADD FOREIGN KEY (school_id) REFERENCES schools(id);
 );
 --marks
 CREATE TABLE marks (
@@ -69,6 +73,15 @@ CREATE TABLE marks (
     marks INT,
     grade VARCHAR(5),
     FOREIGN KEY (student_id) REFERENCES students(id),
-    FOREIGN KEY (subject_id) REFERENCES subjects(id)
+    FOREIGN KEY (subject_id) REFERENCES subjects(id),
+    ALTER TABLE marks ADD COLUMN school_id INT, ADD FOREIGN KEY (school_id) REFERENCES schools(id);
 );
 
+CREATE TABLE schools (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    address VARCHAR(255),
+    phone VARCHAR(20),
+    email VARCHAR(100) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
