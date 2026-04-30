@@ -1,6 +1,6 @@
 import {pool} from "../config/mysql.js";
 import ApiResponse from "../utils/ApiResponse.js";
-import ApiError from 
+import ApiError from "../utils/ApiError.js";
 
 const registerSchool = async(req,res)=>{
     try{
@@ -9,9 +9,10 @@ const registerSchool = async(req,res)=>{
             return res.status(400).json(new ApiResponse(400,"Name and email required"));
 
         }
-         const [existing]= await pool.query("
-            SELECT id FRO, schools WHERE email = ?",
-        [email]);
+         const [existing] = await pool.query(
+            "SELECT id FROM schools WHERE email = ?",
+            [email]
+         );
         if(existing.length>0){
             return res.status(400).json(new ApiResponse(400,"School Already Registered"));
 

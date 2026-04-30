@@ -8,6 +8,7 @@ import { pool } from "../config/mysql.js"
 import fs from "fs"
 import axios from "axios"
 import FormData from "form-data"
+import { Face } from "../models/face.model.js"
 
 
 import {ApiError} from "../utils/ApiError.js"
@@ -164,63 +165,71 @@ const logout = async(req,res)=>{
 //attendance mark using ai 
 export const markAttendanceFromAI = async (req, res) => {
   try {
-    // check image
-    if (!req.file) {
-      return res
-        .status(400)
-        .json(new ApiResponse(400, "Image is required"));
+    const { image } = req.body; // base64 image
+
+    if (!image) {
+      return res.status(400).json(new ApiResponse(400, "Image is required"));
     }
 
-    // prepare form-data for python
-    const formData = new FormData();
-    formData.append("image", fs.createReadStream(req.file.path));
+    // us class ke saare students fetch karo
+    const [students] = await pool.query(
+      "SELECT id FROM students WHERE school_id = ?",
+      [req.user.school_id]
+    );
 
-    //  python service
+    if (!students.length) {
+      return res.status(404).json(new ApiResponse(404, "No students found"));
+    }
+
+    const studentIds = students.map(s => s.id);
+
+    // MongoDB se un students ki encodings fetch karo
+    const faces = await Face.find({
+      student_id: { $in: studentIds }
+    });
+
+    if (!faces.length) {
+      return res.status(404).json(new ApiResponse(404, "No faces registered yet"));
+    }
+
+    const known_encodings = faces.map(f => ({
+      student_id: f.student_id,
+      encoding: f.encoding
+    }));
+
+    // python ko image + encodings bhejo
     const response = await axios.post(
       "http://localhost:5001/recognize-face",
-      formData,
-      {
-        headers: formData.getHeaders(),
-        timeout: 5000
-      }
+      { image, known_encodings },
+      { headers: { "Content-Type": "application/json" }, timeout: 10000 }
     );
 
-    const { student_id, matched } = response.data;
+    const { matched, student_id } = response.data;
 
-    // 4check result
     if (!matched || !student_id) {
-      return res
-        .status(400)
-        .json(new ApiResponse(400, "Face not recognized"));
+      return res.status(400).json(new ApiResponse(400, "Face not recognized"));
     }
 
-    //  mark 
+    // attendance mark karo
     await pool.query(
-      `INSERT INTO attendance (student_id, date, status)
-       VALUES (?, CURDATE(), 'present')
+      `INSERT INTO attendance (student_id, date, status, school_id)
+       VALUES (?, CURDATE(), 'present', ?)
        ON DUPLICATE KEY UPDATE status='present'`,
-      [student_id]
+      [student_id, req.user.school_id]
     );
 
-    // cleanup temp file 
-    fs.unlinkSync(req.file.path);
-
-    return res.json(
-      new ApiResponse(200, "Attendance marked via AI", {
-        student_id
-      })
-    );
+    return res.status(200).json(new ApiResponse(200, "Attendance marked via AI", {
+      student_id
+    }));
 
   } catch (error) {
     console.error("AI Attendance Error:", error.message);
-
-    return res.status(500).json(
-      new ApiResponse(500, "AI attendance failed", {
-        error: error.message
-      })
-    );
+    return res.status(500).json(new ApiResponse(500, "AI attendance failed", {
+      error: error.message
+    }));
   }
 };
+
 
 //marking attendance function
 const markAttendance = async(req,res)=>{

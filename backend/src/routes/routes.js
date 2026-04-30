@@ -2,12 +2,19 @@ import express from 'express';
 import {registerSchool,getAllSchools} from '../controller/school.controller.js';
 import { register , login,getProfile,logout,markAttendanceFromAI,markAttendance,getAttendancefun,changePassword,uploadMarks,getMarks,getResult} from '../controller/user.controller.js';
 import { verifyToken,authorizeRoles } from '../middlewares/auth.middleware.js';
+import {registerFace,getFaceStatus,deleteFace} from '../controller/face.controller.js';
+import {upload} from "../config/multer.js"
 
 export const router = express.Router();
 //public access wale
 router.route("/register").post(register);
 router.route("/login").post(login);
 router.route("/school/register").post(registerSchool);
+
+//face routes
+router.route("/face/register").post(verifyToken,authorizeRoles("teacher","admin"),registerFace);
+router.route("/face/status").get(verifyToken,authorizeRoles("teacher","admin"),getFaceStatus);
+router.route("/face/:student_id").delete(verifyToken,authorizeRoles("teacher","admin"),deleteFace);
 
 
 
