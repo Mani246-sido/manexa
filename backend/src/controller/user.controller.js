@@ -65,35 +65,39 @@ const register = async(req,res)=>{
 //krle login bhai
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, registration_number, password } = req.body;
 
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json(new ApiResponse(404, "User not found"));
+    // email ya registration_number dono mein se ek hona chahiye
+    if (!password || (!email && !registration_number)) {
+      return res.status(400).json(new ApiResponse(400, "Credentials required"));
     }
+
+  
+    let user;
+    if (registration_number) {
+      user = await User.findOne({ registration_number });
+    } else {
+      user = await User.findOne({ email });
+    }
+
+    if (!user) return res.status(404).json(new ApiResponse(404, "User not found"));
 
     const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json(new ApiResponse(401, "Invalid credentials"));
 
-    if (!isMatch) {
-      return res.status(401).json(new ApiResponse(401, "Invalid credentials"));
-    }
-
-    const { accessToken, refreshToken } =
-      await generateAccessAndRefreshToken(user._id);
+    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
 
     try {
-  await sendLoginEmail(user, req);
-} catch (err) {
-  console.error("Mail send failed:", err.message); // login block mat karo
-}
+      await sendLoginEmail(user, req);
+    } catch (err) {
+      console.error("Mail send failed:", err.message);
+    }
 
-    res.status(200).json(
-      new ApiResponse(200, "Login successful", {
-        accessToken,
-        refreshToken,
-      })
-    );
+    res.status(200).json(new ApiResponse(200, "Login successful", {
+      accessToken,
+      refreshToken,
+      role: user.role
+    }));
 
   } catch (error) {
     res.status(500).json(new ApiResponse(500, error.message));

@@ -12,7 +12,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    lowercase: true
+    lowercase: true,
+    sparse: true,
+  },
+
+  registration_number:{
+    type: String,
+    unique:true,
+    sparse:true,
   },
 
   password: {
@@ -41,7 +48,9 @@ userSchema.methods.generateAccessToken = function () {
     {
       id: this._id,
       role: this.role,
-      email: this.email
+      email: this.email,
+      school_id: this.school_id,
+      registration_number: this.registration_number
     },
     process.env.JWT_SECRET,
     { expiresIn: "1d" }

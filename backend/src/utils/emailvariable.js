@@ -7,6 +7,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const sendLoginEmail = async (user, req) => {
+  if (!user.email) return;
+  
   const filePath = path.join(__dirname, "../templates/mailtemplate.html");
   let html = fs.readFileSync(filePath, "utf-8");
 

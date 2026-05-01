@@ -28,6 +28,7 @@ CREATE TABLE students (
     class_id INT,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (class_id) REFERENCES classes(id),
+    ALTER TABLE students ADD COLUMN registration_number VARCHAR(50) UNIQUE NOT NULL,
     ALTER TABLE students ADD COLUMN school_id INT, ADD FOREIGN KEY (school_id) REFERENCES schools(id);
 );
 

@@ -4,6 +4,7 @@ import { register , login,getProfile,logout,markAttendanceFromAI,markAttendance,
 import { verifyToken,authorizeRoles } from '../middlewares/auth.middleware.js';
 import {registerFace,getFaceStatus,deleteFace} from '../controller/face.controller.js';
 import {upload} from "../config/multer.js"
+import { checkLowAttendance, getNotifications, markAsRead, markAllAsRead } from '../controller/notification.controller.js';
 
 export const router = express.Router();
 //public access wale
