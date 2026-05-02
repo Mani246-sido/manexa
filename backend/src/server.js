@@ -3,6 +3,7 @@ dotenv.config();
 import app from './app.js';
 import connectDB from './config/mongo.js';
 import { verifyMailer } from './config/mail.js';
+import { startCronJobs } from './config/cron.js';
 
 import { connectmysql } from './config/mysql.js';
 
@@ -13,6 +14,8 @@ const servertry = async () => {
      await connectDB();
      await connectmysql();
      await verifyMailer();
+     startCronJobs();
+
 
      
      app.listen(PORT, () => {

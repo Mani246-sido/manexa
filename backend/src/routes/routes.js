@@ -11,12 +11,21 @@ export const router = express.Router();
 router.route("/register").post(register);
 router.route("/login").post(login);
 router.route("/school/register").post(registerSchool);
+router.route("/schools/list").get(getSchoolsList);
+//schools
+router.route("/schools").get(verifyToken,authorizeRoles("admin"),getAllSchools);
 
 //face routes
 router.route("/face/register").post(verifyToken,authorizeRoles("teacher","admin"),registerFace);
 router.route("/face/status").get(verifyToken,authorizeRoles("teacher","admin"),getFaceStatus);
 router.route("/face/:student_id").delete(verifyToken,authorizeRoles("teacher","admin"),deleteFace);
+//notification routes
+router.route("/notifications").get(verifyToken,getNotifications);
+router.route("/notifications/read-all").patch(verifyToken,markAllAsRead);
+router.route("/notifications/:id/read").patch(verifyToken,markAsRead);
 
+//low attendance notification check
+router.route("/attendance/check-low").post(verifyToken,authorizeRoles("teacher","admin"),checkLowAttendance);
 
 
 

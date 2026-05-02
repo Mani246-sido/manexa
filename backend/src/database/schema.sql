@@ -1,83 +1,3 @@
--- Roles
-CREATE TABLE roles (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    role_name VARCHAR(50) UNIQUE NOT NULL
-);
-
--- Users
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    email VARCHAR(100) UNIQUE,
-    password VARCHAR(255),
-    role_id INT,
-    FOREIGN KEY (role_id) REFERENCES roles(id)
-);
-
--- Classes
-CREATE TABLE classes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    class_name VARCHAR(50),
-    ALTER TABLE classes ADD COLUMN school_id INT, ADD FOREIGN KEY (school_id) REFERENCES schools(id);
-);
-
--- Students
-CREATE TABLE students (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    class_id INT,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (class_id) REFERENCES classes(id),
-    ALTER TABLE students ADD COLUMN registration_number VARCHAR(50) UNIQUE NOT NULL,
-    ALTER TABLE students ADD COLUMN school_id INT, ADD FOREIGN KEY (school_id) REFERENCES schools(id);
-);
-
--- Subjects
-CREATE TABLE subjects (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    subject_name VARCHAR(100)
-);
-
--- Teachers
-CREATE TABLE teachers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    subject_id INT,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (subject_id) REFERENCES subjects(id),
-    ALTER TABLE teachers ADD COLUMN school_id INT, ADD FOREIGN KEY (school_id) REFERENCES schools(id);
-);
-
--- Enrollments
-CREATE TABLE enrollments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT,
-    subject_id INT,
-    FOREIGN KEY (student_id) REFERENCES students(id),
-    FOREIGN KEY (subject_id) REFERENCES subjects(id)
-);
-
--- Attendance
-CREATE TABLE attendance (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT,
-    date DATE,
-    status VARCHAR(10),
-    FOREIGN KEY (student_id) REFERENCES students(id),
-    ALTER TABLE attendance ADD COLUMN school_id INT, ADD FOREIGN KEY (school_id) REFERENCES schools(id);
-);
---marks
-CREATE TABLE marks (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT,
-    subject_id INT,
-    marks INT,
-    grade VARCHAR(5),
-    FOREIGN KEY (student_id) REFERENCES students(id),
-    FOREIGN KEY (subject_id) REFERENCES subjects(id),
-    ALTER TABLE marks ADD COLUMN school_id INT, ADD FOREIGN KEY (school_id) REFERENCES schools(id);
-);
-
 CREATE TABLE schools (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -85,4 +5,61 @@ CREATE TABLE schools (
     phone VARCHAR(20),
     email VARCHAR(100) UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE classes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    class_name VARCHAR(50),
+    school_id INT,
+    FOREIGN KEY (school_id) REFERENCES schools(id)
+);
+
+CREATE TABLE subjects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    subject_name VARCHAR(100),
+    school_id INT,
+    FOREIGN KEY (school_id) REFERENCES schools(id)
+);
+
+CREATE TABLE students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    class_id INT,
+    school_id INT,
+    registration_number VARCHAR(50) UNIQUE NOT NULL,
+    FOREIGN KEY (class_id) REFERENCES classes(id),
+    FOREIGN KEY (school_id) REFERENCES schools(id)
+);
+
+CREATE TABLE teachers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    subject_id INT,
+    school_id INT,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id),
+    FOREIGN KEY (school_id) REFERENCES schools(id)
+);
+
+CREATE TABLE attendance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT,
+    school_id INT,
+    date DATE,
+    status VARCHAR(10),
+    FOREIGN KEY (student_id) REFERENCES students(id),
+    FOREIGN KEY (school_id) REFERENCES schools(id),
+    UNIQUE KEY unique_attendance (student_id, date)
+);
+
+CREATE TABLE marks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT,
+    subject_id INT,
+    school_id INT,
+    marks INT,
+    grade VARCHAR(5),
+    FOREIGN KEY (student_id) REFERENCES students(id),
+    FOREIGN KEY (subject_id) REFERENCES subjects(id),
+    FOREIGN KEY (school_id) REFERENCES schools(id),
+    UNIQUE KEY unique_marks (student_id, subject_id)
 );

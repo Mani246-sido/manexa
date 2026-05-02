@@ -1,30 +1,29 @@
-import bycrpt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { User } from '../models/user.model.js';
 import { pool } from '../config/mysql.js';
 
 export const registerUser = async (data) => {
-  const { name, email, password, role, class_id, subject, school_id, registration_number} = data;
+  const { name, email, password, role, class_id, subject, school_id, registration_number } = data;
 
- if (role === "student" && !registration_number){
-  throw new Error("Registration number is required for students");
- }
- if(role ==="teacher" && !email){
-  throw new Error("Email is required for teachers");
+  if (!school_id) throw new Error("school_id is required");
 
- }
- if(role === "student"){
-  const existing = await User.findOne({registration_number});
-  if(existing){
-    throw new Error("Registration number already exists");
+  if (role === "student" && !registration_number) {
+    throw new Error("Registration number is required for students");
   }
-  const existing = await User.findOne({email});
-  if(existing){
-    throw new Error("Email already exists");
+  if (role === "teacher" && !email) {
+    throw new Error("Email is required for teachers");
   }
- }
+
+  // duplicate check
+  if (role === "student") {
+    const existingReg = await User.findOne({ registration_number, school_id });
+    if (existingReg) throw new Error("Registration number already exists in this school");
+  } else {
+    const existingEmail = await User.findOne({ email, school_id });
+    if (existingEmail) throw new Error("Email already exists in this school");
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
-
   let ref_id = null;
 
   if (role === "student") {
@@ -44,11 +43,12 @@ export const registerUser = async (data) => {
   const newUser = await User.create({
     name,
     email: email || null,
-    registration_number: registration_number || null,//idhr check krna h ki isse mandatory rkhna h ya nhi 
+    registration_number: registration_number || null,
     password: hashedPassword,
-    role, ref_id, school_id
+    role,
+    ref_id,
+    school_id
   });
 
   return newUser;
 };
-    
