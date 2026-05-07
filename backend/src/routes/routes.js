@@ -5,6 +5,7 @@ import { verifyToken,authorizeRoles } from '../middlewares/auth.middleware.js';
 import {registerFace,getFaceStatus,deleteFace} from '../controller/face.controller.js';
 import {upload} from "../config/multer.js"
 import { checkLowAttendance, getNotifications, markAsRead, markAllAsRead } from '../controller/notification.controller.js';
+import { createFeeStructure,generateInvoices, getFeeStructures, recordPayment, getMyInvoices, getAllInvoices, getDefaulters } from '../controller/fee.controller.js';
 
 export const router = express.Router();
 //public access wale
@@ -26,6 +27,16 @@ router.route("/notifications/:id/read").patch(verifyToken,markAsRead);
 
 //low attendance notification check
 router.route("/attendance/check-low").post(verifyToken,authorizeRoles("teacher","admin"),checkLowAttendance);
+//fee routes
+router.route("/fee-structures").get(verifyToken,authorizeRoles("teacher","admin"),getFeeStructures);
+router.route("/fee-structures").post(verifyToken,authorizeRoles("teacher","admin"),createFeeStructure);
+router.route("/fee/generate-invoices").post(verifyToken,authorizeRoles("teacher","admin"),generateInvoices);
+router.route("/fee/payement").post(verifyToken,authorizeRoles("teacher","admin"),recordPayment);
+router.route("/fee/imvoices").get(verifyTokens,authorizeRoles("admin","teacher"),getAllInvoices);
+router.route("/fee/my-invoices").get(verifyToken,authorizeRoles("student","parent"),getMyInvoices);
+router.route("/fee/defaulters").get(verifyToken,authorizeRoles("teacher","admin"),getDefaulters);
+router.route("/fee/payements").get(verifyToken,authorizeRoles("teacher","admin"),getPayementHistory);
+router.route("/fee/summary").get(verifyToken,authorizeRoles("teacher","admin"),getCollectionSummary);
 
 
 

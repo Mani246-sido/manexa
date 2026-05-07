@@ -82,3 +82,17 @@ export const startCronJobs = () => {
 
   console.log('Cron jobs started ✅');
 };
+//fees checking ke liye har roz raat 12 baje chalega
+cron.schedule('0 0 * * *', async () => {
+  try {
+    await pool.query(
+      `UPDATE fee_invoices 
+       SET status = 'overdue'
+       WHERE status = 'pending'
+       AND due_date < CURDATE()`
+    );
+    console.log('Overdue invoices updated ✅');
+  } catch (error) {
+    console.error('Overdue cron error:', error.message);
+  }
+});
