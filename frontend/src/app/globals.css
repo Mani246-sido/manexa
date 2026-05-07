@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0f1117;
+  --surface: #1a1f2e;
+  --surface2: #252d40;
+  --accent: #6c63ff;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --border: #2d3748;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+@layer components {
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-hover text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    background: var(--accent);
+  }
+  .btn-primary:hover { background: #574fd6; }
+  .card {
+    @apply rounded-2xl p-6 border border-border;
+    background: var(--surface);
+    border-color: var(--border);
+  }
+  .input {
+    @apply w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all;
+    background: var(--surface2);
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,99,255,0.15); }
+  .badge-present { @apply bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full text-xs font-medium; }
+  .badge-absent { @apply bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full text-xs font-medium; }
+  .badge-late { @apply bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full text-xs font-medium; }
+}
