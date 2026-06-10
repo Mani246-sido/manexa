@@ -5,8 +5,21 @@ import { verifyToken,authorizeRoles } from '../middlewares/auth.middleware.js';
 import {registerFace,getFaceStatus,deleteFace} from '../controller/face.controller.js';
 import {upload} from "../config/multer.js"
 import { checkLowAttendance, getNotifications, markAsRead, markAllAsRead } from '../controller/notification.controller.js';
-import { createFeeStructure,generateInvoices, getFeeStructures, recordPayment, getMyInvoices, getAllInvoices, getDefaulters } from '../controller/fee.controller.js';
-
+import { createFeeStructure,
+  getFeeStructures,
+  generateInvoices,
+  recordPayment,
+  getMyInvoices,
+  getAllInvoices,
+  getDefaulters,
+  getPaymentHistory,
+  getCollectionSummary } from '../controller/fee.controller.js';
+import {
+  createTimetable,
+  getStudentTimetable,
+  getTeacherTimetable,
+  deleteTimetable
+} from "../controllers/timetable.controller.js";
 export const router = express.Router();
 //public access wale
 router.route("/register").post(register);
@@ -37,9 +50,36 @@ router.route("/fee/my-invoices").get(verifyToken,authorizeRoles("student","paren
 router.route("/fee/defaulters").get(verifyToken,authorizeRoles("teacher","admin"),getDefaulters);
 router.route("/fee/payements").get(verifyToken,authorizeRoles("teacher","admin"),getPayementHistory);
 router.route("/fee/summary").get(verifyToken,authorizeRoles("teacher","admin"),getCollectionSummary);
+//timetable routes
+router.post(
+  "/",
+  verifyToken,
+  authorizeRoles("admin"),
+  createTimetable
+);
 
+router.delete(
+  "/:id",
+  verifyToken,
+  authorizeRoles("admin"),
+  deleteTimetable
+);
 
+// Student
+router.get(
+  "/student",
+  verifyToken,
+  authorizeRoles("student"),
+  getStudentTimetable
+);
 
+// Teacher
+router.get(
+  "/teacher",
+  verifyToken,
+  authorizeRoles("teacher"),
+  getTeacherTimetable
+);
 
 
 
