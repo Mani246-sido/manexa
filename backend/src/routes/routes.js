@@ -119,6 +119,14 @@ export default router;
 */
 import express from "express";
 import {
+  enterResult, bulkEnterResults,
+  getMyResult, getClassResults, getExamStats,
+} from "../controller/examResult.controller.js";
+import {
+  createExam, getAllExams, getExamById, updateExam, deleteExam,
+  addExamSubject, updateExamSubject, deleteExamSubject, getMyExamSchedule,
+} from "../controller/exam.controller.js";
+import {
   applyLeave, getMyLeaves, getAllLeaves, getLeaveById,
   approveLeave, rejectLeave, cancelLeave, getLeaveStats,
 } from "../controller/leave.controller.js";
@@ -458,5 +466,21 @@ router.get("/leaves/stats", verifyToken, authorizeRoles("teacher", "admin"), get
 router.get("/leaves/:id", verifyToken, authorizeRoles("teacher", "admin", "student"), getLeaveById);
 router.patch("/leaves/:id/approve", verifyToken, authorizeRoles("teacher", "admin"), approveLeave);
 router.patch("/leaves/:id/reject", verifyToken, authorizeRoles("teacher", "admin"), rejectLeave);
+
+router.get("/exams/my-schedule", verifyToken, authorizeRoles("student"), getMyExamSchedule);
+router.post("/exams", verifyToken, authorizeRoles("admin", "teacher"), createExam);
+router.get("/exams", verifyToken, getAllExams);
+router.get("/exams/:id", verifyToken, getExamById);
+router.put("/exams/:id", verifyToken, authorizeRoles("admin", "teacher"), updateExam);
+router.delete("/exams/:id", verifyToken, authorizeRoles("admin", "teacher"), deleteExam);
+router.post("/exams/:id/subjects", verifyToken, authorizeRoles("admin", "teacher"), addExamSubject);
+router.put("/exams/subjects/:subjectId", verifyToken, authorizeRoles("admin", "teacher"), updateExamSubject);
+router.delete("/exams/subjects/:subjectId", verifyToken, authorizeRoles("admin", "teacher"), deleteExamSubject);
+
+router.post("/exams/:examId/results", verifyToken, authorizeRoles("teacher", "admin"), enterResult);
+router.post("/exams/:examId/results/bulk", verifyToken, authorizeRoles("teacher", "admin"), bulkEnterResults);
+router.get("/exams/:examId/results/my", verifyToken, authorizeRoles("student"), getMyResult);
+router.get("/exams/:examId/results/class/:classId", verifyToken, authorizeRoles("teacher", "admin"), getClassResults);
+router.get("/exams/:examId/stats", verifyToken, authorizeRoles("teacher", "admin"), getExamStats);
 
 export default router;

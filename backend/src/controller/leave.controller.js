@@ -5,10 +5,10 @@ import { pool } from "../config/mysql.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 
-
+//we will total days with this
 const calcDays = (from, to) => {
   const diff = new Date(to) - new Date(from);
-  return Math.floor(diff / (1000 * 60 * 60 * 24)) + 1; // inclusive
+  return Math.floor(diff / (1000 * 60 * 60 * 24)) + 1; 
 };
 
 export const applyLeave = async (req, res, next) => {
