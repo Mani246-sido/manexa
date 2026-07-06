@@ -1,5 +1,13 @@
-class ApiResponse{
-    constructor(statusCode, message, data = null){
+class ApiResponse {
+    constructor(
+        statusCode,
+        message = "Success",
+        data = null
+    ) {
+        if (typeof statusCode !== "number") {
+            throw new TypeError("statusCode must be a number");
+        }
+
         this.statusCode = statusCode;
         this.message = message;
         this.data = data;

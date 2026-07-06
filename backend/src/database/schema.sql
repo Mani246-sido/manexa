@@ -14,7 +14,14 @@ CREATE TABLE classes (
     FOREIGN KEY (school_id) REFERENCES schools(id)
 );
 
+<<<<<<< Updated upstream
 CREATE TABLE subjects (
+=======
+
+
+-- Students
+CREATE TABLE students (
+>>>>>>> Stashed changes
     id INT AUTO_INCREMENT PRIMARY KEY,
     subject_name VARCHAR(100),
     school_id INT,
